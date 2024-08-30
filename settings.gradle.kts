@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ssV3"
+rootProject.name = "Software Sekolah"
 include(":app")
  

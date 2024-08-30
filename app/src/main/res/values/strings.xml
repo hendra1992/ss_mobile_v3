@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">ssV3</string>
+    <string name="default_notification_channel_id">default_notification_ss</string>
+    <string name="default_notification_channel_name">default_notification_channel_name_ss</string>
+    <string name="default_notification_channel_description">default_notification_channel_description_ss\n</string>
 </resources>

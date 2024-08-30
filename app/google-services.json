@@ -1,0 +1,91 @@
+{
+  "project_info": {
+    "project_number": "384009052572",
+    "firebase_url": "https://software-sekolah-development.firebaseio.com",
+    "project_id": "software-sekolah-development",
+    "storage_bucket": "software-sekolah-development.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384009052572:android:32cfdc64d6b2e2f7a6a859",
+        "android_client_info": {
+          "package_name": "com.softwaresekolah.inosoft"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "384009052572-7spvte4hc4i4g928ag9jkk340k17a83e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.softwaresekolah.inosoft",
+            "certificate_hash": "fee24cb853cac32c0bf1382bdb632697813c4f1f"
+          }
+        },
+        {
+          "client_id": "384009052572-nj4j8brq1d3oqdseclid9i5fqu4sf9p1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUfzACaUs7yaCDxQmESNu98yYX9jNvWe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "384009052572-nj4j8brq1d3oqdseclid9i5fqu4sf9p1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "384009052572-tld9fbjt2jt8l1ta8er2qni6cuvv0kt3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.softwaresekolah.inosoft"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384009052572:android:42f612df430285ae",
+        "android_client_info": {
+          "package_name": "com.softwaresekolah.inosoft"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "384009052572-nj4j8brq1d3oqdseclid9i5fqu4sf9p1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUfzACaUs7yaCDxQmESNu98yYX9jNvWe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "384009052572-nj4j8brq1d3oqdseclid9i5fqu4sf9p1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "384009052572-tld9fbjt2jt8l1ta8er2qni6cuvv0kt3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.softwaresekolah.inosoft"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
