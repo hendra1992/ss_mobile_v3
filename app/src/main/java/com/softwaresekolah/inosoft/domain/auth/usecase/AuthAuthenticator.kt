@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
 import com.skydoves.sandwich.onSuccess
+import com.softwaresekolah.inosoft.BuildConfig
 import com.softwaresekolah.inosoft.data.auth.request.RefreshTokenRequestBody
 import com.softwaresekolah.inosoft.data.core.mapper.ErrorEnvelopeMapper
 import com.softwaresekolah.inosoft.data.core.remote.services.RefreshTokenService
@@ -38,8 +39,8 @@ class AuthAuthenticator @Inject constructor(
     companion object {
         const val HEADER_AUTHORIZATION = "Authorization"
         const val TOKEN_TYPE = "Bearer"
-        const val DEPKODE_HEADER = "dep_kode"
-        const val API_CLIENT_HEADER = "api_client_key"
+        const val DEPKODE_HEADER = "Dep-Kode"
+        const val API_CLIENT_HEADER = "Api-Client-Key"
     }
     override fun authenticate(route: Route?, response: Response): Request? {
         val currentToken = runBlocking {
@@ -91,7 +92,7 @@ class AuthAuthenticator @Inject constructor(
             return if (token != null) response.request.newBuilder()
                 .header(HEADER_AUTHORIZATION, "$TOKEN_TYPE $token")
                 .addHeader(DEPKODE_HEADER, value = "$depkode")
-                .addHeader(API_CLIENT_HEADER, value = Constant.API_CLIENT_KEY)
+                .addHeader(API_CLIENT_HEADER, value = BuildConfig.API_CLIENT_KEY)
                 .build() else null
         }
     }

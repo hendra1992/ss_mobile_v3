@@ -3,6 +3,7 @@ package com.softwaresekolah.inosoft.di
 import android.app.Application
 import androidx.room.Room
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
+import com.softwaresekolah.inosoft.BuildConfig
 import com.softwaresekolah.inosoft.data.core.local.SoftwareSekolahDatabse
 import com.softwaresekolah.inosoft.data.core.local.UserDao
 import com.softwaresekolah.inosoft.util.Constant
@@ -29,7 +30,7 @@ object AppModule {
     @[Provides Singleton]
     fun provideAuthApi(@PublicClient okHttpClient: OkHttpClient): AuthApiService {
         return Retrofit.Builder()
-            .baseUrl(Constant.BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
@@ -40,7 +41,7 @@ object AppModule {
     @[Provides Singleton]
     fun provideRefreshTokenApi(@TokenRefreshClient okHttpClient: OkHttpClient): RefreshTokenService {
         return Retrofit.Builder()
-            .baseUrl(Constant.BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
@@ -51,7 +52,7 @@ object AppModule {
     @[Provides Singleton]
     fun provideAuthenticatedApi(@AuthenticatedClient okHttpClient: OkHttpClient): UserApiService {
         return Retrofit.Builder()
-            .baseUrl(Constant.BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)

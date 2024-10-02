@@ -1,5 +1,6 @@
 package com.softwaresekolah.inosoft.domain.auth.interceptor
 
+import com.softwaresekolah.inosoft.BuildConfig
 import com.softwaresekolah.inosoft.util.Constant
 import com.softwaresekolah.inosoft.domain.core.manager.LocalManager
 import kotlinx.coroutines.runBlocking
@@ -31,7 +32,7 @@ class AccessTokenInterceptor @Inject constructor(
         val request = chain.request().newBuilder()
         request.addHeader(HEADER_AUTHORIZATION, value = "$TOKEN_TYPE $token")
         request.addHeader(DEPKODE_HEADER, value = "$depkode")
-        request.addHeader(API_CLIENT_HEADER, value = Constant.API_CLIENT_KEY)
+        request.addHeader(API_CLIENT_HEADER, value = BuildConfig.API_CLIENT_KEY)
         return chain.proceed(request.build())
     }
 }

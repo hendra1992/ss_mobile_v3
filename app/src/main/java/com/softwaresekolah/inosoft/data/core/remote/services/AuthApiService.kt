@@ -1,6 +1,7 @@
 package com.softwaresekolah.inosoft.data.core.remote.services
 
 import com.skydoves.sandwich.ApiResponse
+import com.softwaresekolah.inosoft.BuildConfig
 import com.softwaresekolah.inosoft.util.Constant
 import com.softwaresekolah.inosoft.data.auth.request.LoginRequestBody
 import com.softwaresekolah.inosoft.data.auth.request.LogoutBodyRequest
@@ -17,14 +18,14 @@ interface AuthApiService {
     @POST("auth/siswa")
     suspend fun login(
         @Header("Dep-Kode") depkode: String,
-        @Header("Api-Client-Key") apiClientKey: String = Constant.API_CLIENT_KEY,
+        @Header("Api-Client-Key") apiClientKey: String = BuildConfig.API_CLIENT_KEY,
         @Body body: LoginRequestBody,
     ): ApiResponse<BaseResponse<LoginDataResponse>>
 
      @POST("auth/logout")
     suspend fun logout(
         @Header("Dep-Kode") depkode: String,
-        @Header("Api-Client-Key") apiClientKey: String = Constant.API_CLIENT_KEY,
+        @Header("Api-Client-Key") apiClientKey: String = BuildConfig.API_CLIENT_KEY,
         @Body body: LogoutBodyRequest,
     ): ApiResponse<BaseResponse<LoginDataResponse>>
 }

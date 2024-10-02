@@ -45,6 +45,8 @@ android {
     productFlavors{
         create("production") {
             // For prod build
+            buildConfigField(type = "String", name = "API_CLIENT_KEY", value = "\"39e822df-6e24-48fb-b572-2e559d4b0189\"")
+            buildConfigField(type = "String", name = "BASE_URL", value = "\"https://core-api-dev.softwaresekolah.com/api/mobile/v1/\"")
             dimension = "version"
             resValue("string", "app_version_code", "${defaultConfig.versionName}")
             resValue("string", "app_name", "Software Sekolah")
@@ -62,6 +64,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
