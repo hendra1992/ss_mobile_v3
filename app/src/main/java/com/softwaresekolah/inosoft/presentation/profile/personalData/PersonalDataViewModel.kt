@@ -156,21 +156,21 @@ class PersonalDataViewModel @Inject constructor(
                 if (this.body.errors.isNotEmpty()){
                     this.body.errors.forEach {
                         if (it.field == "siswa_nama_panggilan"){
-                            _state.value = _state.value.copy(isLoading = false, nicknameIsError = true, nicknameErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, nicknameIsError = true, nicknameErrorText = it.client_message)
                         }else if (it.field == "siswa_email"){
-                            _state.value = _state.value.copy(isLoading = false, emailIsError = true, emailErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, emailIsError = true, emailErrorText = it.client_message)
                         }else if (it.field == "siswa_tempat_lahir"){
-                            _state.value = _state.value.copy(isLoading = false, birthPlaceIsError = true, birthPlaceErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, birthPlaceIsError = true, birthPlaceErrorText = it.client_message)
                         }else if (it.field == "siswa_tanggal_lahir"){
-                            _state.value = _state.value.copy(isLoading = false, birthDateIsError = true, birthDateErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, birthDateIsError = true, birthDateErrorText = it.client_message)
                         }else if (it.field == "siswa_jenis_kelamin"){
-                            _state.value = _state.value.copy(isLoading = false, genderIsError = true, genderErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, genderIsError = true, genderErrorText = it.client_message)
                         }else if (it.field == "siswa_hp"){
-                            _state.value = _state.value.copy(isLoading = false, hpIsError = true, hpErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, hpIsError = true, hpErrorText = it.client_message)
                         }else if (it.field == "siswa_no_whatsapp"){
-                            _state.value = _state.value.copy(isLoading = false, waIsError = true, waErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, waIsError = true, waErrorText = it.client_message)
                         }else if (it.field == "siswa_no_akta_lahir"){
-                            _state.value = _state.value.copy(isLoading = false, birthCertificateNumberIsError = true, birthCertificateNumberErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, birthCertificateNumberIsError = true, birthCertificateNumberErrorText = it.client_message)
                         }
                     }
                 }

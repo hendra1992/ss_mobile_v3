@@ -16,15 +16,15 @@ import retrofit2.http.POST
 interface AuthApiService {
     @POST("auth/siswa")
     suspend fun login(
-        @Header("dep_kode") depkode: String,
-        @Header("api_client_key") apiClientKey: String = Constant.API_CLIENT_KEY,
+        @Header("Dep-Kode") depkode: String,
+        @Header("Api-Client-Key") apiClientKey: String = Constant.API_CLIENT_KEY,
         @Body body: LoginRequestBody,
     ): ApiResponse<BaseResponse<LoginDataResponse>>
 
      @POST("auth/logout")
     suspend fun logout(
-        @Header("dep_kode") depkode: String,
-        @Header("api_client_key") apiClientKey: String = Constant.API_CLIENT_KEY,
+        @Header("Dep-Kode") depkode: String,
+        @Header("Api-Client-Key") apiClientKey: String = Constant.API_CLIENT_KEY,
         @Body body: LogoutBodyRequest,
     ): ApiResponse<BaseResponse<LoginDataResponse>>
 }

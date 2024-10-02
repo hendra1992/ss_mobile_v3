@@ -57,7 +57,7 @@ class AddressViewModel @Inject constructor(
     fun onEvent(event: AddressEvent){
         when(event){
             is AddressEvent.OnClearError -> {
-
+                onClearError()
             }
             is AddressEvent.OnClearText -> {
                 onClearText()
@@ -143,7 +143,7 @@ class AddressViewModel @Inject constructor(
         postalCode: String,
         telephone: String,
     ){
-//        onClearError()
+        onClearError()
         val studentId = runBlocking {
             localManager.getIdSiswa()
         }
@@ -170,15 +170,15 @@ class AddressViewModel @Inject constructor(
                 if (this.body.errors.isNotEmpty()){
                     this.body.errors.forEach {
                         if (it.field == "siswa_alamat"){
-                            _state.value = _state.value.copy(isLoading = false, addressIsError = true, addressErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, addressIsError = true, addressErrorText = it.client_message)
                         }else if (it.field == "siswa_propinsi"){
-                            _state.value = _state.value.copy(isLoading = false, provinceIdIsError = true, provinceIdErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, provinceIdIsError = true, provinceIdErrorText = it.client_message)
                         }else if (it.field == "siswa_kota"){
-                            _state.value = _state.value.copy(isLoading = false, cityIdIsError = true, cityIdErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, cityIdIsError = true, cityIdErrorText = it.client_message)
                         }else if (it.field == "siswa_kodepos"){
-                            _state.value = _state.value.copy(isLoading = false, postalCodeIsError = true, postalCodeErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, postalCodeIsError = true, postalCodeErrorText = it.client_message)
                         }else if (it.field == "siswa_telp"){
-                            _state.value = _state.value.copy(isLoading = false, telephoneIsError = true, telephoneErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, telephoneIsError = true, telephoneErrorText = it.client_message)
                         }
                     }
                 }
@@ -189,6 +189,21 @@ class AddressViewModel @Inject constructor(
                 Timber.tag("Parent View Model").d(message)
             }
         }
+    }
+
+    private fun onClearError(){
+        _state.value = _state.value.copy(
+            cityIdIsError = false,
+            cityIdErrorText = null,
+            telephoneIsError = false,
+            telephoneErrorText = null,
+            addressIsError = false,
+            postalCodeErrorText = null,
+            postalCodeIsError = false,
+            addressErrorText = null,
+            provinceIdIsError = false,
+            provinceIdErrorText = null,
+        )
     }
 
 }

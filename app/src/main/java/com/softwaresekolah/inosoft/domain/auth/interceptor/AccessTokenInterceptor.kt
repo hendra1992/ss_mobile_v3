@@ -14,8 +14,8 @@ class AccessTokenInterceptor @Inject constructor(
     companion object {
         const val HEADER_AUTHORIZATION = "Authorization"
         const val TOKEN_TYPE = "Bearer"
-        const val DEPKODE_HEADER = "dep_kode"
-        const val API_CLIENT_HEADER = "api_client_key"
+        const val DEPKODE_HEADER = "Dep-Kode"
+        const val API_CLIENT_HEADER = "Api-Client-Key"
     }
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = runBlocking {

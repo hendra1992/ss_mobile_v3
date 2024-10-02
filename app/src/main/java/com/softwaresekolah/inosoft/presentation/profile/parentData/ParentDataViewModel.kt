@@ -137,13 +137,13 @@ class ParentDataViewModel @Inject constructor(
                 if (this.body.errors.isNotEmpty()){
                     this.body.errors.forEach {
                         if (it.field == "ortu_ayah_nama"){
-                            _state.value = _state.value.copy(isLoading = false, dadNameIsError = true, dadNameErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, dadNameIsError = true, dadNameErrorText = it.client_message)
                         }else if (it.field == "ortu_ayah_hp"){
-                            _state.value = _state.value.copy(isLoading = false, dadPhoneIsError = true, dadPhoneErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, dadPhoneIsError = true, dadPhoneErrorText = it.client_message)
                         }else if (it.field == "ortu_ibu_nama"){
-                            _state.value = _state.value.copy(isLoading = false, momNameIsError = true, momNameErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, momNameIsError = true, momNameErrorText = it.client_message)
                         }else if (it.field == "ortu_ibu_hp"){
-                            _state.value = _state.value.copy(isLoading = false, momPhoneIsError = true, momPhoneErrorText = it.message)
+                            _state.value = _state.value.copy(isLoading = false, momPhoneIsError = true, momPhoneErrorText = it.client_message)
                         }
                     }
                 }

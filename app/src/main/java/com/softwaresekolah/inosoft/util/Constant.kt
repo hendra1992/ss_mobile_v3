@@ -18,7 +18,7 @@ object Constant {
 
 
     // BASE_URL
-    const val BASE_URL = "http://10.0.2.2:3000/api/mobile/v1/"
+    const val BASE_URL = "https://core-api-dev.softwaresekolah.com/api/mobile/v1/"
     const val API_CLIENT_KEY = "39e822df-6e24-48fb-b572-2e559d4b0189"
 
     const val SSdbName = "software_sekolah_database"
