@@ -1,11 +1,16 @@
 package com.softwaresekolah.inosoft.presentation.settings.component.listAccount
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,15 +20,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,37 +53,174 @@ import coil.compose.AsyncImage
 import com.softwaresekolah.inosoft.domain.core.models.User
 import com.softwaresekolah.inosoft.presentation.core.common.SoftwareSekolahButton
 import com.softwaresekolah.inosoft.presentation.core.navgraph.Route
+import com.softwaresekolah.inosoft.presentation.settings.component.LogoutDialog
+import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListAccount(
     modifier: Modifier = Modifier,
-    state: ListAccountState,
     navController: NavController,
+    state: ListAccountState,
     onEvent: (ListAccountEvent) -> Unit,
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val height = configuration.screenHeightDp * 0.8
-    LazyColumn(modifier = modifier.height(height.dp)) {
-        itemsIndexed(state.users){ index, item ->
-            AccountItem(item = item, currentAcc = state.currentUser) {
-                onEvent(ListAccountEvent.OnSwitchAccount(item))
-            }
-        }
-    }
 
-    SideEffect {
-        onEvent(ListAccountEvent.OnUpdate)
+    val currentSelectedItem = remember { mutableStateOf(User("", "", "", "", "", "", "", "", "", "",)) }
+
+
+
+
+
+    LazyColumn(modifier = modifier.height(height.dp)) {
+        itemsIndexed(state.users){ _, item ->
+            val isCancel = remember {
+                mutableStateOf(false)
+            }
+
+            val showDialog = remember {
+                mutableStateOf(false)
+            }
+
+            if (showDialog.value){
+                LogoutDialog(
+                    logout = {
+                        onEvent(ListAccountEvent.OnLogout(item.idSiswa))
+                    },
+                    isLogoutDialogShow = showDialog,
+                    user = item,
+                    cancel = {
+                        isCancel.value = true
+                    }
+                )
+            }
+            SwipeToDeleteContainer(item = item, onDelete = {
+                currentSelectedItem.value = it
+                showDialog.value = true
+            }, isCancel = isCancel, content = { user ->
+                AccountItem(item = user, currentAcc = state.currentUser) {
+                    onEvent(ListAccountEvent.OnSwitchAccount(user))
+                }
+            })
+        }
     }
 
     LaunchedEffect(state.text) {
         state.text?.let {
             Toast.makeText( context, it, Toast.LENGTH_SHORT).show()
             onEvent(ListAccountEvent.OnClearText)
-            navController.navigate(Route.HomeScreen.route){
-                popUpTo(0)
+            onEvent(ListAccountEvent.OnUpdate)
+            if (state.text.contains("beralih", ignoreCase = true)){
+                navController.navigate(Route.HomeScreen.route){
+                    popUpTo(0)
+                }
             }
+
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T> SwipeToDeleteContainer(
+    item: T,
+    onDelete: (T) -> Unit,
+    animationDuration: Int = 500,
+    content: @Composable (T) -> Unit,
+    isCancel: MutableState<Boolean>
+    ) {
+
+    var isRemoved by remember {
+        mutableStateOf(false)
+    }
+    val state = rememberSwipeToDismissBoxState(
+        initialValue = SwipeToDismissBoxValue.Settled,
+    )
+
+
+
+    LaunchedEffect(isCancel.value) {
+        if (isCancel.value){
+            isCancel.value = false
+            state.snapTo(SwipeToDismissBoxValue.Settled)
+        }
+    }
+
+    LaunchedEffect(key1 = isRemoved) {
+        if(isRemoved) {
+            delay(animationDuration.toLong())
+            onDelete(item)
+        }
+    }
+
+    AnimatedVisibility(
+        visible = !isRemoved,
+        exit = shrinkVertically(
+            animationSpec = tween(durationMillis = animationDuration),
+            shrinkTowards = Alignment.Top
+        ) + fadeOut()
+    ) {
+        SwipeToDismissBox(
+            state = state,
+            backgroundContent = {
+                DeleteBackground(swipeDismissState = state)
+            },
+            content = { content(item) },
+            enableDismissFromEndToStart = true,
+            enableDismissFromStartToEnd = false
+        )
+    }
+
+    when(state.currentValue){
+        SwipeToDismissBoxValue.Settled->{
+            isRemoved = false
+        }
+        SwipeToDismissBoxValue.StartToEnd -> {
+
+        }
+        SwipeToDismissBoxValue.EndToStart -> {
+            if (!isRemoved){
+                onDelete(item)
+            }
+            isRemoved = true
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeleteBackground(
+    swipeDismissState: SwipeToDismissBoxState
+) {
+    val color = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+        Color.Red
+    } else Color.Transparent
+
+   Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = color,
+        ),
+    ) {
+       Box(modifier = Modifier
+           .fillMaxSize()
+           .padding(8.dp), contentAlignment = Alignment.CenterEnd){
+           Row (verticalAlignment = Alignment.CenterVertically){
+                Text(modifier = Modifier.padding(), text = "Logout", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                Icon(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+           }
+
+       }
     }
 }
 

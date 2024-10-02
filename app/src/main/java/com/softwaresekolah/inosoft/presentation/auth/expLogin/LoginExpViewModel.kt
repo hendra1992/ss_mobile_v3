@@ -54,6 +54,20 @@ class LoginExpViewModel @Inject constructor(
         }
     }
 
+    private fun validate(depkode: String, body: LoginRequestBody): String{
+        if (depkode.isEmpty()){
+            return "Kode Sekolah tidak boleh kosong"
+        }
+        if (body.siswa_username.isEmpty()){
+            return "Nomor Induk Siswa tidak boleh kosong"
+        }
+        if(body.siswa_password.isEmpty()){
+            return "Password tidak boleh kosong"
+        }
+        return ""
+    }
+
+
     private fun clearError(){
         _state.value = _state.value.copy(isLoading = false, error = null, isSuccess = false)
     }
@@ -64,26 +78,32 @@ class LoginExpViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
-            val response = loginUseCase(depkode = depkode, body = body)
-            response.suspendOnSuccess {
-                data.data?.let {
-                    runBlocking {
-                        saveUserLogin(depkode = depkode,data = it, token = body.device_token, username = body.siswa_username)
-                        _state.value = _state.value.copy(isLoading = false, isSuccess = true)
+            val errorValidate = validate(depkode = depkode, body = body)
+
+            if (errorValidate.isNotEmpty()){
+                _state.value = _state.value.copy(error = errorValidate, isLoading = false)
+            }else{
+                val response = loginUseCase(depkode = depkode, body = body)
+                response.suspendOnSuccess {
+                    data.data?.let {
+                        runBlocking {
+                            saveUserLogin(depkode = depkode,data = it, token = body.device_token, username = body.siswa_username)
+                            _state.value = _state.value.copy(isLoading = false, isSuccess = true)
+                        }
                     }
+                }.onError(ErrorEnvelopeMapper) {
+                        val code = this.code
+                        val message = this.message
+                        val errorMessage = this.body.messages
+                    _state.value = _state.value.copy(isLoading = false)
+                    _state.value = _state.value.copy(error = errorMessage)
+                }.onException {
+                    _state.value = _state.value.copy(isLoading = false)
+                    _state.value = _state.value.copy(error = message)
                 }
-            }.onError(ErrorEnvelopeMapper) {
-                    val code = this.code
-                    val message = this.message
-                    val errorMessage = this.body.messages
-                _state.value = _state.value.copy(isLoading = false)
-                _state.value = _state.value.copy(error = errorMessage)
-//                Timber.tag("ONERROR").d("code : $code error : $message body : $errorMessage");
-            }.onException {
-                _state.value = _state.value.copy(isLoading = false)
-                _state.value = _state.value.copy(error = message)
-//                    Timber.tag("ON EXCEPTION").d(message)
             }
+
+
         }
     }
 }

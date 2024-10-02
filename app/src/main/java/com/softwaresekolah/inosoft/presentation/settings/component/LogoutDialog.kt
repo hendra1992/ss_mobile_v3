@@ -10,10 +10,11 @@ import com.maxkeppeker.sheets.core.models.base.ButtonStyle
 import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.SelectionButton
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.softwaresekolah.inosoft.domain.core.models.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogoutDialog(logout: () -> Unit, isLogoutDialogShow: MutableState<Boolean>) {
+fun LogoutDialog(user: User? = null, logout: () -> Unit, isLogoutDialogShow: MutableState<Boolean>, cancel: () -> Unit = {}) {
     CoreDialog(
         state = rememberUseCaseState(visible = true, onCloseRequest = {isLogoutDialogShow.value = false}),
 
@@ -30,10 +31,17 @@ fun LogoutDialog(logout: () -> Unit, isLogoutDialogShow: MutableState<Boolean>) 
                 null,
                 ButtonStyle.FILLED
             ),
+            onNegativeClick = {
+                cancel()
+            }
         ),
         onPositiveValid = true,
         body = {
-            Text(text = "Apakah anda yakin mau logout ?")
+            if (user != null){
+                Text(text = "Logout Akun ${user.siswaNama} ?")                
+            }else{
+                Text(text = "Apakah anda yakin mau logout ?")
+            }
         },
     )
 }

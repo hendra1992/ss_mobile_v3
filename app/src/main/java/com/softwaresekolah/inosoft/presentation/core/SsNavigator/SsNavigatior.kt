@@ -2,12 +2,8 @@ package com.softwaresekolah.inosoft.presentation.core.SsNavigator
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Newspaper
@@ -19,35 +15,25 @@ import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -59,7 +45,6 @@ import com.softwaresekolah.inosoft.R
 import com.softwaresekolah.inosoft.data.core.BottomNavItem
 import com.softwaresekolah.inosoft.data.core.NavItem
 import com.softwaresekolah.inosoft.presentation.core.SsNavigator.components.BottomNavBar
-import com.softwaresekolah.inosoft.presentation.settings.component.listAccount.ListAccount
 import com.softwaresekolah.inosoft.presentation.core.SsNavigator.components.NavDraw
 import com.softwaresekolah.inosoft.presentation.core.SsNavigator.components.TopBar
 import com.softwaresekolah.inosoft.presentation.core.navgraph.Route
@@ -69,16 +54,19 @@ import com.softwaresekolah.inosoft.presentation.auth.Login.LoginScreen
 import com.softwaresekolah.inosoft.presentation.auth.Login.LoginViewModel
 import com.softwaresekolah.inosoft.presentation.auth.expLogin.LoginExpScreen
 import com.softwaresekolah.inosoft.presentation.auth.expLogin.LoginExpViewModel
-import com.softwaresekolah.inosoft.presentation.settings.component.listAccount.ListAccountViewModel
 import com.softwaresekolah.inosoft.presentation.notification.list.NotificationScreen
 import com.softwaresekolah.inosoft.presentation.core.common.rememberMultiSelectionState
 import com.softwaresekolah.inosoft.presentation.drawer.DrawDetailScreen
 import com.softwaresekolah.inosoft.presentation.notification.detail.NotificationDetailScreen
-import com.softwaresekolah.inosoft.presentation.profile.alamat.AlamatScreen
-import com.softwaresekolah.inosoft.presentation.profile.dataDiri.DataDiriScreen
-import com.softwaresekolah.inosoft.presentation.profile.dataOrangTua.DataOrangTuaScreen
+import com.softwaresekolah.inosoft.presentation.profile.address.AddressScreen
+import com.softwaresekolah.inosoft.presentation.profile.address.AddressViewModel
+import com.softwaresekolah.inosoft.presentation.profile.personalData.PersonalDataScreen
+import com.softwaresekolah.inosoft.presentation.profile.parentData.ParentDataScreen
 import com.softwaresekolah.inosoft.presentation.profile.fileKelengkpanSiswa.FileKelengkapanSiswaScreen
-import com.softwaresekolah.inosoft.presentation.profile.lainya.LainnyaScreen
+import com.softwaresekolah.inosoft.presentation.profile.etc.EtcScreen
+import com.softwaresekolah.inosoft.presentation.profile.etc.EtcViewModel
+import com.softwaresekolah.inosoft.presentation.profile.parentData.ParentDataViewModel
+import com.softwaresekolah.inosoft.presentation.profile.personalData.PersonalDataViewModel
 import com.softwaresekolah.inosoft.presentation.profile.profile.ProfileScreen
 import com.softwaresekolah.inosoft.presentation.settings.listAccount.ListAccountScreen
 import com.softwaresekolah.inosoft.presentation.settings.setting.SettingViewModel
@@ -361,19 +349,28 @@ fun SsNavigator(
                         }
                 }
                 composable(route = Route.DataDiriScreen.route) {
-                    DataDiriScreen(navigateUp = { navController.navigateUp() })
+                    val viewModel: PersonalDataViewModel = hiltViewModel()
+                    val state = viewModel.state.value
+                    PersonalDataScreen(navigateUp = { navController.navigateUp() }, onEvent = viewModel::onEvent, state = state)
                 }
+
                 composable(route = Route.AlamatScreen.route) {
-                    AlamatScreen(navigateUp = { navController.navigateUp() })
+                    val viewModel: AddressViewModel = hiltViewModel()
+                    val state = viewModel.state.value
+                    AddressScreen(navigateUp = { navController.navigateUp() }, state = state, onEvent = viewModel::onEvent)
                 }
                 composable(route = Route.DataOrangTuaScreen.route) {
-                    DataOrangTuaScreen(navigateUp = { navController.navigateUp() })
+                    val viewModel: ParentDataViewModel = hiltViewModel()
+                    val state = viewModel.state.value
+                    ParentDataScreen(navigateUp = { navController.navigateUp() }, state = state, onEvent = viewModel::onEvent)
                 }
                 composable(route = Route.FileKelengkapanSiswaScreen.route) {
                     FileKelengkapanSiswaScreen(navigateUp = { navController.navigateUp() })
                 }
                 composable(route = Route.LainnyaScreen.route) {
-                    LainnyaScreen(navigateUp = { navController.navigateUp() })
+                    val viewModel: EtcViewModel = hiltViewModel()
+                    val state = viewModel.state.value
+                    EtcScreen(navigateUp = { navController.navigateUp() }, state = state, onEvent = viewModel::onEvent)
                 }
                 composable(route = Route.LoginScreen.route){
                     val viewModel: LoginViewModel = hiltViewModel()

@@ -62,7 +62,7 @@ class AuthAuthenticator @Inject constructor(
 
             var token: String? = null
 
-            if (currentToken != updatedToken) updatedToken else {
+            if (currentToken != updatedToken) token = updatedToken else {
 
                     val newSessionResponse = runBlocking { refreshTokenService.refreshToken(
                         body = RefreshTokenRequestBody(refresh_token = refreshToken.toString(), usr_id = userId.toString().toInt())

@@ -184,12 +184,12 @@ private object PreferencesKeys{
     val APP_EXP = booleanPreferencesKey(Constant.APP_EXP)
     val USER_LOGIN = booleanPreferencesKey(Constant.USER_LOGIN)
     val USER_ID = stringPreferencesKey(Constant.USER_ID)
-    val DEPKODE = stringPreferencesKey(Constant.DEPKODE)
+    val DEPKODE = stringPreferencesKey(Constant.DEPCODE)
     val SOFTWARE_ID = stringPreferencesKey(Constant.SOFTWARE_ID)
     val ACCESS_TOKEN = stringPreferencesKey(Constant.ACCESS_TOKEN_JWT)
     val REFRESH_TOKEN = stringPreferencesKey(Constant.REFRESH_TOKEN_JWT)
     val FCM_TOKEN = stringPreferencesKey(Constant.FCM_TOKEN)
-    val ID_DEP = stringPreferencesKey(Constant.ID_DEP)
-    val ID_SISWA = stringPreferencesKey(Constant.ID_SISWA)
+    val ID_DEP = stringPreferencesKey(Constant.DEP_ID)
+    val ID_SISWA = stringPreferencesKey(Constant.STUDENT_ID)
 
 }

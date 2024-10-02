@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import java.lang.Error
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,7 +22,9 @@ fun ProfileTextField(
     title: String,
     state: MutableState<String>,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    isError: Boolean = false,
+    supText: String? = null
 ) {
     Text(
         text = title,
@@ -38,6 +41,15 @@ fun ProfileTextField(
             )
         },
         colors = OutlinedTextFieldDefaults.colors(),
-        singleLine = singleLine
+        singleLine = singleLine,
+        isError = isError,
+        supportingText = supText?.let {
+                @Composable {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+        },
     )
 }

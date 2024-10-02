@@ -124,7 +124,7 @@ fun LoginScreen(
                         )
                         Spacer(modifier = Modifier.height(MediumPadding1))
                         SsTextField(
-                            label = "Nim",
+                            label = "Nomor Induk Siswa",
                             value = nim,
                             onValueChange = {nim = it},
                             keyboardOptions = KeyboardOptions( imeAction = ImeAction.Next),

@@ -20,6 +20,7 @@ fun ProfileMenuTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     navigateUp: () -> Unit,
     actionVisibility: Boolean = true,
+    actionOnClick: () -> Unit = {}
 ) {
 
     CenterAlignedTopAppBar(
@@ -33,7 +34,7 @@ fun ProfileMenuTopBar(
         },
         actions = {
             if (actionVisibility){
-                IconButton(onClick = { }) {
+                IconButton(onClick = actionOnClick) {
                     Icon(imageVector = Icons.Default.Save, contentDescription = "save")
                 }
             }

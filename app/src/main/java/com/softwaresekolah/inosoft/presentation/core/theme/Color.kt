@@ -3,7 +3,7 @@ package com.softwaresekolah.inosoft.presentation.core.theme
 import androidx.compose.ui.graphics.Color
 
 val Black = Color(0xFF1C1E21) //Dark Background
-val Blue = Color(0xFF1877F2) //Primary
+val Blue = Color(0xFF5104D7) //Primary
 val Tail600 = Color(0xFF59C1BD)
 
 val DarkRed = Color(0xFFC30052) //Dark Error

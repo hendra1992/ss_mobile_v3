@@ -11,15 +11,20 @@ import android.view.WindowInsets.Side
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.messaging.FirebaseMessaging
 import com.softwaresekolah.inosoft.domain.core.manager.LocalManager
@@ -49,6 +54,7 @@ class MainActivity : ComponentActivity() {
     lateinit var localManager: LocalManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         val dialogQueue = viewModel.visiblePermissionDialogQueue
 
         installSplashScreen().apply {
@@ -71,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 )
-
+                setStatusBarColor(color = Color.Transparent)
                 Box(modifier = Modifier
                     .background(MaterialTheme.colorScheme.background)
                     .fillMaxSize()) {
@@ -126,6 +132,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+}
+
+@Composable
+fun setStatusBarColor(color: Color) {
+    val view = LocalView.current
+
+    if (!view.isInEditMode){
+        LaunchedEffect(true) {
+            val window = (view.context as Activity).window
+            window.statusBarColor = color.toArgb()
+        }
+    }
 }
 
 fun Activity.openAppSettings() {

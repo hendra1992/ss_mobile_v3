@@ -59,7 +59,7 @@ fun SettingsScreen(
         }
 
         if (isLogoutDilalogShow.value){
-            LogoutDialog({ onEvent(SettingEvent.logout) }, isLogoutDilalogShow)
+            LogoutDialog(logout = { onEvent(SettingEvent.logout) }, isLogoutDialogShow =  isLogoutDilalogShow)
         }
 
         LaunchedEffect(state.logoutSuccess) {

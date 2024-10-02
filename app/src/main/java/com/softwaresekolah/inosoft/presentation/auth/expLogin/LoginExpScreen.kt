@@ -131,7 +131,7 @@ fun LoginExpScreen(
                         )
                         Spacer(modifier = Modifier.height(MediumPadding1))
                         SsTextField(
-                            label = "Nim",
+                            label = "Nomor Induk Siswa",
                             value = nim,
                             onValueChange = {nim = it},
                             readOnly = true,

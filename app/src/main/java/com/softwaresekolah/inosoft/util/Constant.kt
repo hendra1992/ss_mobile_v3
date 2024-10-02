@@ -7,10 +7,10 @@ object Constant {
 
     const val USER_LOGIN = "user_login"
     const val USER_ID = "user_id"
-    const val DEPKODE = "depkode"
+    const val DEPCODE = "depkode"
     const val SOFTWARE_ID = "software_id"
-    const val ID_SISWA = "id_siswa"
-    const val ID_DEP = "id_dep"
+    const val STUDENT_ID = "id_siswa"
+    const val DEP_ID = "id_dep"
 
     const val ACCESS_TOKEN_JWT = "access_token_jwt"
     const val REFRESH_TOKEN_JWT = "refresh_token_jwt"

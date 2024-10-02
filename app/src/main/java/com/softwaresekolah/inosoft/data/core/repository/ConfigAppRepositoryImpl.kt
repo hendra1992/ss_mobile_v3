@@ -5,6 +5,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.skydoves.sandwich.onSuccess
+import com.skydoves.sandwich.suspendOnSuccess
 import com.softwaresekolah.inosoft.data.core.remote.request.ConfigRequestBody
 import com.softwaresekolah.inosoft.data.core.remote.response.BaseResponse
 import com.softwaresekolah.inosoft.data.core.remote.response.ConfigDataResponse
@@ -21,6 +22,12 @@ class ConfigAppRepositoryImpl @Inject constructor(
 ) : ConfigAppRepository {
     override suspend fun readConfig(body: ConfigRequestBody): Flow<ConfigDataResponse> {
         val response = userApi.getConfig(body)
-        return flow { response }
+        return flow {
+            response.suspendOnSuccess {
+                data.data?.let {
+                    emit(it)
+                }
+            }
+        }
     }
 }

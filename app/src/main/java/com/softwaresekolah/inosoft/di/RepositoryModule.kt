@@ -2,8 +2,10 @@ package com.softwaresekolah.inosoft.di
 
 import com.softwaresekolah.inosoft.data.core.repository.ConfigAppRepositoryImpl
 import com.softwaresekolah.inosoft.data.core.repository.UserRepositoryImpl
+import com.softwaresekolah.inosoft.data.profile.repository.FormDataProfileRepositoryImpl
 import com.softwaresekolah.inosoft.domain.core.repository.ConfigAppRepository
 import com.softwaresekolah.inosoft.domain.core.repository.UserRepository
+import com.softwaresekolah.inosoft.domain.profile.repository.FormDataProfileRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -20,5 +22,9 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindUserAppRepository(userRepository: UserRepositoryImpl) : UserRepository
+    abstract fun bindUserRepository(userRepository: UserRepositoryImpl) : UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFormDaraProfileRepository(formDataProfileRepository: FormDataProfileRepositoryImpl) : FormDataProfileRepository
 }
