@@ -1,7 +1,11 @@
 package com.softwaresekolah.inosoft.di
 
 import android.app.Application
+import android.content.Context
+import androidx.fragment.app.FragmentActivity
 import androidx.room.Room
+import com.plcoding.internetconnectionobserver.AndroidConnectivityObserver
+import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.softwaresekolah.inosoft.BuildConfig
 import com.softwaresekolah.inosoft.data.core.local.SoftwareSekolahDatabse
@@ -13,9 +17,11 @@ import com.softwaresekolah.inosoft.data.core.remote.services.RefreshTokenService
 import com.softwaresekolah.inosoft.domain.auth.interceptor.AccessTokenInterceptor
 import com.softwaresekolah.inosoft.domain.auth.interceptor.RefreshTokenInterceptor
 import com.softwaresekolah.inosoft.domain.auth.usecase.AuthAuthenticator
+import com.softwaresekolah.inosoft.util.SsBiometricPromptManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -36,6 +42,16 @@ object AppModule {
             .client(okHttpClient)
             .build()
             .create(AuthApiService::class.java)
+    }
+
+      @[Provides Singleton]
+    fun provideBiometricPromptManager(@ApplicationContext activity: FragmentActivity): SsBiometricPromptManager {
+        return SsBiometricPromptManager(activity)
+    }
+
+    @[Provides Singleton]
+    fun provideInternetObserver(@ApplicationContext context: Context): ConnectivityObserver {
+        return AndroidConnectivityObserver(context)
     }
 
     @[Provides Singleton]

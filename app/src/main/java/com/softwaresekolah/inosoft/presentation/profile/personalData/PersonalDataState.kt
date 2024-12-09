@@ -6,6 +6,7 @@ data class PersonalDataState(
     var isLoading: Boolean = false,
     var personalData: PersonalDataResponse? = null,
     var text: String? = null,
+    var success: String? = null,
     var nicknameIsError: Boolean = false,
     var emailIsError: Boolean = false,
     var birthCertificateNumberIsError: Boolean = false,

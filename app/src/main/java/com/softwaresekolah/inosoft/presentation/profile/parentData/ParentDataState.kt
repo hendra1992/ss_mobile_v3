@@ -6,6 +6,7 @@ data class ParentDataState (
     var isLoading: Boolean = false,
     var parentData: ParentDataResponse? = null,
     var text: String? = null,
+    var success: String? = null,
     var dadNameIsError: Boolean = false,
     var dadPhoneIsError:Boolean = false,
     var momNameIsError: Boolean = false,

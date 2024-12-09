@@ -19,6 +19,10 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
@@ -29,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,6 +46,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import com.plcoding.globalsnackbarscompose.ObserveAsEvents
+import com.plcoding.globalsnackbarscompose.SnackbarController
 import com.softwaresekolah.inosoft.R
 import com.softwaresekolah.inosoft.data.core.BottomNavItem
 import com.softwaresekolah.inosoft.data.core.NavItem
@@ -71,6 +78,7 @@ import com.softwaresekolah.inosoft.presentation.profile.profile.ProfileScreen
 import com.softwaresekolah.inosoft.presentation.settings.listAccount.ListAccountScreen
 import com.softwaresekolah.inosoft.presentation.settings.setting.SettingViewModel
 import com.softwaresekolah.inosoft.presentation.settings.setting.SettingsScreen
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -183,6 +191,30 @@ fun SsNavigator(
     val selectedItems = remember {
         mutableStateListOf<Notification>()
     }
+
+    val snackbarHostState = remember {
+        SnackbarHostState()
+    }
+    val scope = rememberCoroutineScope()
+    ObserveAsEvents(
+        flow = SnackbarController.events,
+        snackbarHostState
+    ) { event ->
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                actionLabel = event.action?.name,
+                duration = SnackbarDuration.Long
+            )
+
+            if(result == SnackbarResult.ActionPerformed) {
+                event.action?.action?.invoke()
+            }
+        }
+    }
+
     ModalNavigationDrawer(
         drawerContent = {
             NavDraw(
@@ -205,6 +237,9 @@ fun SsNavigator(
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
             ,
+            snackbarHost = { SnackbarHost(
+                hostState = snackbarHostState
+            ) },
             bottomBar = {
                 if (isMainMenu) {
                     BottomNavBar(

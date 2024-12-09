@@ -8,5 +8,6 @@ data class EtcState(
     var religionRaw: List<ReligionDataResponse> = emptyList(),
     var religions: List<String> = emptyList(),
     var etcData: EtcDataResponse? = null,
-    var text: String? = null
+    var text: String? = null,
+    var success: String? = null
 )

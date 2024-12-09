@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import com.google.firebase.messaging.FirebaseMessaging
 import com.softwaresekolah.inosoft.domain.core.manager.LocalManager
 import com.softwaresekolah.inosoft.presentation.core.common.CameraPermissionTextProvider
@@ -38,7 +39,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     private val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(
             Manifest.permission.POST_NOTIFICATIONS
@@ -48,7 +49,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private val viewModel by viewModels<MainViewModel>()
-
 
     @Inject
     lateinit var localManager: LocalManager

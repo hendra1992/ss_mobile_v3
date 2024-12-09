@@ -5,6 +5,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.plcoding.globalsnackbarscompose.SnackbarAction
+import com.plcoding.globalsnackbarscompose.SnackbarController
+import com.plcoding.globalsnackbarscompose.SnackbarEvent
+import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
@@ -17,8 +21,10 @@ import com.softwaresekolah.inosoft.domain.profile.usecase.personalData.GetPerson
 import com.softwaresekolah.inosoft.domain.profile.usecase.personalData.SavePersonalDataUseCase
 import com.softwaresekolah.inosoft.util.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -26,24 +32,59 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PersonalDataViewModel @Inject constructor(
-    private val application: Application,
     private val personalDataUseCase: GetPersonalDataUseCase,
     private val savePersonalDataUseCase: SavePersonalDataUseCase,
     private val localManager: LocalManager,
+    private val connectivityObserver: ConnectivityObserver
 ): ViewModel() {
     private val _state = mutableStateOf(PersonalDataState())
     val state: State<PersonalDataState> = _state
-    val networkMonitor = NetworkMonitor(application)
+
+     val isConnected = connectivityObserver
+        .isConnected
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            false
+        )
 
     init {
-         viewModelScope.launch {
+        viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-
-            if (networkMonitor.isNetworkAvailable()){
+            if (isConnected.value){
                 loadData()
             }else{
-                _state.value = _state.value.copy(isLoading = false, text = "no internet connection! coba lagi nanti")
+                _state.value = _state.value.copy(isLoading = false)
+                showSnackbar("No Internet Connection", action = { update() })
             }
+        }
+    }
+
+    fun update(){
+        Timber.tag("Personal View Model").d("test")
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+            if (isConnected.value){
+                loadData()
+            }else{
+                _state.value = _state.value.copy(isLoading = false)
+                showSnackbar("No Internet Connection", action = {update()})
+            }
+        }
+
+    }
+
+    fun showSnackbar(text: String, actionText: String = "Retry", action: () -> Unit) {
+        viewModelScope.launch {
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = text,
+                    action = SnackbarAction(
+                        name = actionText,
+                        action = action
+                    )
+                )
+            )
         }
     }
 
@@ -113,6 +154,7 @@ class PersonalDataViewModel @Inject constructor(
     private fun onClearText(){
         _state.value = _state.value.copy(
             text =  null,
+            success =  null,
         )
     }
 
@@ -127,6 +169,13 @@ class PersonalDataViewModel @Inject constructor(
         birthCertificateNumber: String,
     ){
         onClearError()
+        if (!isConnected.value){
+            _state.value = _state.value.copy(isLoading = false)
+            showSnackbar("No Internet Connection", action = { saveData(
+                nickname, email, birthPlace, birthDate, gender, hp, wa, birthCertificateNumber
+            ) })
+            return
+        }
         val studentId = runBlocking {
             localManager.getIdSiswa()
         }
@@ -151,7 +200,7 @@ class PersonalDataViewModel @Inject constructor(
 
             val response = savePersonalDataUseCase(body)
             response.onSuccess {
-                _state.value = _state.value.copy(isLoading = false, text = data.messages)
+                _state.value = _state.value.copy(isLoading = false, success = data.messages)
             }.onError(ProfileErrorEnvelopeMapper) {
                 if (this.body.errors.isNotEmpty()){
                     this.body.errors.forEach {

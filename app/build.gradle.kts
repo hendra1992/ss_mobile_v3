@@ -7,16 +7,17 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("kotlin-parcelize")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
     namespace = "com.softwaresekolah.inosoft"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.softwaresekolah.inosoft"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
 
         val versionMajor = 3
         val versionMinor = 0
@@ -140,19 +141,26 @@ dependencies {
     // Timber
     implementation(libs.timber)
 
-    //Datastore
+    // Datastore
     implementation(libs.androidx.datastore.preferences)
 
-    //datepicker
+    // datepicker
     implementation(libs.maxkeppeler.sheets.compose.dialogs.core)
     implementation(libs.maxkeppeler.sheets.compose.dialogs.calendar)
     implementation(libs.maxkeppeler.sheets.compose.dialogs.clock)
     implementation(libs.maxkeppeler.sheets.compose.dialogs.info)
 
-    //firebase
+    // firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.messaging.directboot)
+
+     // biometric auth
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.fragment.ktx)
+
+    // JSON receiver
+    implementation(libs.gson)
 
 }

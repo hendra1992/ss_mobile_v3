@@ -8,6 +8,7 @@ data class AddressState (
     var isLoading: Boolean = false,
     var addressData: AddressDataResponse? = null,
     var text: String? = null,
+    var success: String? = null,
     var provinceRaw: List<ProvinceDataResponse> = emptyList(),
     var provinces: List<String> = emptyList(),
     var cityRaw: List<CityDataResponse> = emptyList(),

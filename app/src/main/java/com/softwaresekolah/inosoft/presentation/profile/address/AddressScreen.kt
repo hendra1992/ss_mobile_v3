@@ -83,9 +83,14 @@ fun AddressScreen(
                 if (state.text != null && state.text != ""){
                     Toast.makeText(context, state.text, Toast.LENGTH_SHORT).show()
                     onEvent(AddressEvent.OnClearText)
-                    if (state.text.toString().contains("successfully")){
-                        navigateUp()
-                    }
+                }
+            }
+
+            LaunchedEffect (state.success){
+                if (state.success != null && state.success != ""){
+                    Toast.makeText(context, state.success, Toast.LENGTH_SHORT).show()
+                    onEvent(AddressEvent.OnClearText)
+                    navigateUp()
                 }
             }
 
@@ -110,8 +115,8 @@ fun AddressScreen(
                 }
 
                  if (state.addressData?.siswa_kota != null ){
-                    val province = state.cityRaw.find { it.kota_id == state.addressData?.siswa_kota }
-                    province?.let {
+                    val city = state.cityRaw.find { it.kota_id == state.addressData?.siswa_kota }
+                    city?.let {
                         kotaSelected.value = it.kota_nama
                     }
                 }
@@ -125,6 +130,20 @@ fun AddressScreen(
                             kotaSelected.value = ""
                         }
                         onEvent(AddressEvent.OnProvinceChanges(it.prop_id))
+                    }
+                }
+            }
+
+            LaunchedEffect (state.cities){
+               val province = state.provinceRaw.find { it.prop_nama == provinsiSelected.value }
+                province?.let {
+                    if (state.addressData?.siswa_propinsi != it.prop_id){
+                        kotaSelected.value = state.cities.first()
+                    }else{
+                        val city = state.cityRaw.find { it.kota_id == state.addressData?.siswa_kota }
+                        city?.let {
+                            kotaSelected.value = it.kota_nama
+                        }
                     }
                 }
             }

@@ -139,9 +139,14 @@ fun PersonalDataScreen(
                 if (state.text != null && state.text != ""){
                     Toast.makeText(context, state.text, Toast.LENGTH_SHORT).show()
                     onEvent(PersonalDataEvent.OnClearText)
-                    if (state.text.toString().contains("successfully")){
-                        navigateUp()
-                    }
+                }
+            }
+
+            LaunchedEffect (state.success){
+                if (state.success != null && state.success != ""){
+                    Toast.makeText(context, state.success, Toast.LENGTH_SHORT).show()
+                    onEvent(PersonalDataEvent.OnClearText)
+                    navigateUp()
                 }
             }
 

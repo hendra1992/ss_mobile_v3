@@ -8,6 +8,10 @@ import javax.inject.Inject
 import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.plcoding.globalsnackbarscompose.SnackbarAction
+import com.plcoding.globalsnackbarscompose.SnackbarController
+import com.plcoding.globalsnackbarscompose.SnackbarEvent
+import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
@@ -20,8 +24,10 @@ import com.softwaresekolah.inosoft.domain.core.manager.LocalManager
 import com.softwaresekolah.inosoft.domain.profile.usecase.etc.GetEtcDataUseCase
 import com.softwaresekolah.inosoft.domain.profile.usecase.etc.SaveEtcDataUseCase
 import com.softwaresekolah.inosoft.util.NetworkMonitor
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -33,22 +39,59 @@ class EtcViewModel @Inject constructor(
     private val getReligionsUseCase: GetReligionsUseCase,
     private val getEtcDataUseCase: GetEtcDataUseCase,
     private val saveEtcDataUseCase: SaveEtcDataUseCase,
-    private val application: Application
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
 
     private val _state = mutableStateOf(EtcState())
     val state: State<EtcState> = _state
-    val networkMonitor = NetworkMonitor(application)
 
+
+    val isConnected = connectivityObserver
+        .isConnected
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            false
+        )
 
     init {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            if (networkMonitor.isNetworkAvailable()){
+
+            if (isConnected.value){
                 loadData()
             }else{
-                _state.value = _state.value.copy(isLoading = false, text = "no internet connection! coba lagi nanti")
+                _state.value = _state.value.copy(isLoading = false)
+                showSnackbar("No Internet Connection", action = {update()})
             }
+        }
+    }
+
+     fun update(){
+        Timber.tag("Personal View Model").d("test")
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+            if (isConnected.value){
+                loadData()
+            }else{
+                _state.value = _state.value.copy(isLoading = false)
+                showSnackbar("No Internet Connection", action = {update()})
+            }
+        }
+
+    }
+
+    fun showSnackbar(text: String, actionText: String = "Retry", action: () -> Unit) {
+        viewModelScope.launch {
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = text,
+                    action = SnackbarAction(
+                        name = actionText,
+                        action = action
+                    )
+                )
+            )
         }
     }
 
@@ -73,7 +116,7 @@ class EtcViewModel @Inject constructor(
     }
 
     private fun clearText(){
-        _state.value = _state.value.copy(isLoading = false, text = null)
+        _state.value = _state.value.copy(isLoading = false, text = null, success = null)
     }
 
     private suspend fun loadData(){
@@ -98,8 +141,15 @@ class EtcViewModel @Inject constructor(
     }
 
     private fun saveData(goldar: String, kwn: String, agm: String){
-        viewModelScope.launch{
             _state.value = _state.value.copy(isLoading = true)
+
+            if (!isConnected.value){
+                _state.value = _state.value.copy(isLoading = false)
+                showSnackbar("No Internet Connection", action = { saveData(
+                    goldar, kwn, agm
+                ) })
+
+            }
 
             val studentId = runBlocking {
                 localManager.getIdSiswa()
@@ -122,10 +172,11 @@ class EtcViewModel @Inject constructor(
                 siswa_gol_darah = goldar,
                 siswa_warganegara = kwn,
             )
+        viewModelScope.launch{
 
             val response = saveEtcDataUseCase(body)
             response.onSuccess {
-                _state.value = _state.value.copy(isLoading = false, text = data.messages)
+                _state.value = _state.value.copy(isLoading = false, success = data.messages)
             }.onError(ProfileErrorEnvelopeMapper) {
                 val field = this.body.errors[0].field
                 val message = this.body.errors[0].message
