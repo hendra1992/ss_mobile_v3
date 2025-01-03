@@ -327,7 +327,7 @@ fun SsNavigator(
             if (isDeleteAllReadNotificationDialogShow.value){
                 NotificationDialog(action = { notificationViewModel.onEvent(NotificationListEvent.OnDeleteAllRead) }, isNotificationDialogShow = isDeleteAllReadNotificationDialogShow, text = "Apakah Anda Yakin Mau Menghapus Semua Pemberitahuan Yang Terbaca?")
             }
-            if(actionBarTitle == "Notification"){
+            if(actionBarTitle == "Notification" && !multipleSelectModeState.isMultiSelectionModeEnabled){
                 ExpandableFAB (
                     items = itemList,
                     onItemClick = {item ->
