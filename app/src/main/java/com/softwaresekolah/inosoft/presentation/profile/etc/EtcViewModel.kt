@@ -1,29 +1,26 @@
 package com.softwaresekolah.inosoft.presentation.profile.etc
 
 import android.app.Application
-import androidx.compose.runtime.mutableStateOf
-import com.softwaresekolah.inosoft.domain.profile.usecase.etc.GetReligionsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plcoding.globalsnackbarscompose.SnackbarAction
 import com.plcoding.globalsnackbarscompose.SnackbarController
 import com.plcoding.globalsnackbarscompose.SnackbarEvent
-import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
 import com.skydoves.sandwich.onFailure
 import com.skydoves.sandwich.onSuccess
-import com.softwaresekolah.inosoft.data.core.mapper.ErrorEnvelopeMapper
 import com.softwaresekolah.inosoft.data.core.mapper.ProfileErrorEnvelopeMapper
 import com.softwaresekolah.inosoft.data.profile.request.EtcDataBodyRequest
 import com.softwaresekolah.inosoft.domain.core.manager.LocalManager
 import com.softwaresekolah.inosoft.domain.profile.usecase.etc.GetEtcDataUseCase
+import com.softwaresekolah.inosoft.domain.profile.usecase.etc.GetReligionsUseCase
 import com.softwaresekolah.inosoft.domain.profile.usecase.etc.SaveEtcDataUseCase
 import com.softwaresekolah.inosoft.util.NetworkMonitor
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -31,6 +28,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
+import javax.inject.Inject
 
 
 @HiltViewModel
@@ -39,26 +37,21 @@ class EtcViewModel @Inject constructor(
     private val getReligionsUseCase: GetReligionsUseCase,
     private val getEtcDataUseCase: GetEtcDataUseCase,
     private val saveEtcDataUseCase: SaveEtcDataUseCase,
-    private val connectivityObserver: ConnectivityObserver
+    private val application: Application
 ) : ViewModel() {
 
     private val _state = mutableStateOf(EtcState())
     val state: State<EtcState> = _state
 
+    val networkMonitor = NetworkMonitor(application)
 
-    val isConnected = connectivityObserver
-        .isConnected
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000L),
-            false
-        )
+    val isConnected = networkMonitor.isNetworkAvailable()
 
     init {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -71,7 +64,7 @@ class EtcViewModel @Inject constructor(
         Timber.tag("Personal View Model").d("test")
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -143,7 +136,7 @@ class EtcViewModel @Inject constructor(
     private fun saveData(goldar: String, kwn: String, agm: String){
             _state.value = _state.value.copy(isLoading = true)
 
-            if (!isConnected.value){
+            if (!isConnected){
                 _state.value = _state.value.copy(isLoading = false)
                 showSnackbar("No Internet Connection", action = { saveData(
                     goldar, kwn, agm
@@ -172,8 +165,8 @@ class EtcViewModel @Inject constructor(
                 siswa_gol_darah = goldar,
                 siswa_warganegara = kwn,
             )
-        viewModelScope.launch{
 
+        viewModelScope.launch{
             val response = saveEtcDataUseCase(body)
             response.onSuccess {
                 _state.value = _state.value.copy(isLoading = false, success = data.messages)

@@ -4,6 +4,13 @@ import com.skydoves.sandwich.ApiResponse
 import com.softwaresekolah.inosoft.data.core.remote.request.ConfigRequestBody
 import com.softwaresekolah.inosoft.data.core.remote.response.BaseResponse
 import com.softwaresekolah.inosoft.data.core.remote.response.ConfigDataResponse
+import com.softwaresekolah.inosoft.data.notification.requests.DeleteAllReadBodyRequest
+import com.softwaresekolah.inosoft.data.notification.requests.DeleteBatchNotificationRequest
+import com.softwaresekolah.inosoft.data.notification.requests.ReadAllBodyRequest
+import com.softwaresekolah.inosoft.data.notification.requests.UpdateReadNotificationRequestBody
+import com.softwaresekolah.inosoft.data.notification.responses.NotificationListResponse
+import com.softwaresekolah.inosoft.data.notification.responses.CountNotificationResponse
+import com.softwaresekolah.inosoft.data.notification.responses.NotificationDetailResponse
 import com.softwaresekolah.inosoft.data.profile.request.AddressBodyRequest
 import com.softwaresekolah.inosoft.data.profile.request.EtcDataBodyRequest
 import com.softwaresekolah.inosoft.data.profile.request.ParentDataBodyRequest
@@ -81,4 +88,44 @@ interface UserApiService {
     suspend fun saveEtcData(
         @Body body: EtcDataBodyRequest
     ): ApiResponse<BaseResponse<EtcDataResponse>>
+
+    @GET("pemberitahuan/count_unread")
+    suspend fun getCountNotif(
+        @Query("id_siswa") studentId : String,
+        @Query("id_dep") departmentId : String
+    ): ApiResponse<BaseResponse<CountNotificationResponse>>
+
+    @GET("pemberitahuan")
+    suspend fun getNotificationList(
+        @Query("id_siswa") studentId : String,
+        @Query("id_dep") departmentId : String
+    ): ApiResponse<BaseResponse<MutableList<NotificationListResponse>>>
+
+    @GET("pemberitahuan/detail")
+    suspend fun getNotificationDetail(
+        @Query("id_notif") notificationId : String
+    ): ApiResponse<BaseResponse<NotificationDetailResponse>>
+
+
+    @POST("pemberitahuan/update_batch_read")
+    suspend fun updateBatchReadNotification(
+        @Body body: UpdateReadNotificationRequestBody
+    ): ApiResponse<BaseResponse<String>>
+
+
+    @POST("pemberitahuan/delete_batch")
+    suspend fun deleteBatchNotification(
+        @Body body: DeleteBatchNotificationRequest
+    ): ApiResponse<BaseResponse<String>>
+
+    @POST("pemberitahuan/update_all_read")
+    suspend fun readAllNotification(
+        @Body body: ReadAllBodyRequest
+    ): ApiResponse<BaseResponse<String>>
+
+
+    @POST("pemberitahuan/delete_all_read")
+    suspend fun deleteAllReadNotification(
+        @Body body: DeleteAllReadBodyRequest
+    ): ApiResponse<BaseResponse<String>>
 }

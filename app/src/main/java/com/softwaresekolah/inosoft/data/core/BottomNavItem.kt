@@ -8,5 +8,5 @@ class BottomNavItem (
     val selectedIcon: @RawValue ImageVector,
     val unselectedIcon: @RawValue ImageVector,
     val hasUpdate: Boolean,
-    val badgeCount: Int? = null
+    var badgeCount: Int? = null
 )

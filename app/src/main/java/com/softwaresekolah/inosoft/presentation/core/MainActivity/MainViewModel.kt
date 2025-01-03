@@ -1,5 +1,6 @@
 package com.softwaresekolah.inosoft.presentation.core.MainActivity
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -71,8 +72,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    @SuppressLint("NewApi")
     fun dismissDialog(){
-        visiblePermissionDialogQueue.removeFirst()
+        visiblePermissionDialogQueue.removeAt(0)
     }
 
     fun onPermissionResult(

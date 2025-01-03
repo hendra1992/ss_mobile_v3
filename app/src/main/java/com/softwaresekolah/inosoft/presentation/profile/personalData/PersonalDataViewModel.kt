@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.plcoding.globalsnackbarscompose.SnackbarAction
 import com.plcoding.globalsnackbarscompose.SnackbarController
 import com.plcoding.globalsnackbarscompose.SnackbarEvent
-import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
@@ -21,10 +20,8 @@ import com.softwaresekolah.inosoft.domain.profile.usecase.personalData.GetPerson
 import com.softwaresekolah.inosoft.domain.profile.usecase.personalData.SavePersonalDataUseCase
 import com.softwaresekolah.inosoft.util.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -35,23 +32,19 @@ class PersonalDataViewModel @Inject constructor(
     private val personalDataUseCase: GetPersonalDataUseCase,
     private val savePersonalDataUseCase: SavePersonalDataUseCase,
     private val localManager: LocalManager,
-    private val connectivityObserver: ConnectivityObserver
+    private val application: Application
 ): ViewModel() {
     private val _state = mutableStateOf(PersonalDataState())
     val state: State<PersonalDataState> = _state
+    val networkMonitor = NetworkMonitor(application)
 
-     val isConnected = connectivityObserver
-        .isConnected
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000L),
-            false
-        )
+
+    val isConnected = networkMonitor.isNetworkAvailable()
 
     init {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -64,7 +57,7 @@ class PersonalDataViewModel @Inject constructor(
         Timber.tag("Personal View Model").d("test")
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -169,7 +162,7 @@ class PersonalDataViewModel @Inject constructor(
         birthCertificateNumber: String,
     ){
         onClearError()
-        if (!isConnected.value){
+        if (!isConnected){
             _state.value = _state.value.copy(isLoading = false)
             showSnackbar("No Internet Connection", action = { saveData(
                 nickname, email, birthPlace, birthDate, gender, hp, wa, birthCertificateNumber

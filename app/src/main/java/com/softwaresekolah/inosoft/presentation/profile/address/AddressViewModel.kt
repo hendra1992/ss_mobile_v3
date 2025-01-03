@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.plcoding.globalsnackbarscompose.SnackbarAction
 import com.plcoding.globalsnackbarscompose.SnackbarController
 import com.plcoding.globalsnackbarscompose.SnackbarEvent
-import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
@@ -23,11 +22,8 @@ import com.softwaresekolah.inosoft.domain.profile.usecase.address.GetProvinceUse
 import com.softwaresekolah.inosoft.domain.profile.usecase.address.SaveAddressDataUseCase
 import com.softwaresekolah.inosoft.util.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.multibindings.IntoMap
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -41,26 +37,19 @@ class AddressViewModel @Inject constructor(
     private val getAddressDataUseCase: GetAddressDataUseCase,
     private val saveAddressDataUseCase: SaveAddressDataUseCase,
     private val localManager: LocalManager,
-    private val connectivityObserver: ConnectivityObserver
 ): ViewModel() {
     private val _state = mutableStateOf(AddressState())
     val state: State<AddressState> = _state
     val networkMonitor = NetworkMonitor(application)
 
 
-      val isConnected = connectivityObserver
-        .isConnected
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000L),
-            false
-        )
+  val isConnected = networkMonitor.isNetworkAvailable()
 
     init {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -73,7 +62,7 @@ class AddressViewModel @Inject constructor(
         Timber.tag("Personal View Model").d("test")
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -187,7 +176,7 @@ class AddressViewModel @Inject constructor(
         telephone: String,
     ){
         onClearError()
-         if (!isConnected.value){
+         if (!isConnected){
                 _state.value = _state.value.copy(isLoading = false)
                 showSnackbar("No Internet Connection", action = { saveData(
                     address, provinceId, cityId, postalCode, telephone

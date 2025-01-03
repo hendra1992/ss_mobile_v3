@@ -4,8 +4,6 @@ import android.app.Application
 import android.content.Context
 import androidx.fragment.app.FragmentActivity
 import androidx.room.Room
-import com.plcoding.internetconnectionobserver.AndroidConnectivityObserver
-import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.softwaresekolah.inosoft.BuildConfig
 import com.softwaresekolah.inosoft.data.core.local.SoftwareSekolahDatabse
@@ -49,10 +47,7 @@ object AppModule {
         return SsBiometricPromptManager(activity)
     }
 
-    @[Provides Singleton]
-    fun provideInternetObserver(@ApplicationContext context: Context): ConnectivityObserver {
-        return AndroidConnectivityObserver(context)
-    }
+
 
     @[Provides Singleton]
     fun provideRefreshTokenApi(@TokenRefreshClient okHttpClient: OkHttpClient): RefreshTokenService {

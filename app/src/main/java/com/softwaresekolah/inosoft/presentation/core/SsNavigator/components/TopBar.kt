@@ -12,11 +12,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.softwaresekolah.inosoft.data.notification.Notification
+import com.softwaresekolah.inosoft.data.notification.responses.NotificationListResponse
+import com.softwaresekolah.inosoft.presentation.core.SsNavigator.SharedViewModelEvent
 import com.softwaresekolah.inosoft.presentation.core.common.MultiSelectionState
+import com.softwaresekolah.inosoft.presentation.notification.list.NotificationListEvent
+import com.softwaresekolah.inosoft.presentation.notification.list.component.NotificationDialog
 import kotlinx.coroutines.launch
+import kotlin.reflect.KFunction1
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,9 +31,17 @@ fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     drawerState: DrawerState,
     multiSelectState: MultiSelectionState,
-    notifSelectedItem: SnapshotStateList<Notification>
+    notifSelectedItem: SnapshotStateList<NotificationListResponse>,
+    onEvent: (NotificationListEvent) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val isNotificationDialogShow = remember {
+        mutableStateOf(false)
+    }
+
+    if (isNotificationDialogShow.value){
+        NotificationDialog(action = { onEvent(NotificationListEvent.DeleteBatchNotification(notifSelectedItem.toList())) }, isNotificationDialogShow = isNotificationDialogShow, text = "Apakah Anda Yakin Mau Menghapus Pemberitahuan Yang Terpilih?")
+    }
     CenterAlignedTopAppBar(
         title = { Text(text = title)},
         navigationIcon = {
@@ -46,7 +60,9 @@ fun TopBar(
         },
         actions = {
             if (multiSelectState.isMultiSelectionModeEnabled){
-                IconButton(onClick = { }) {
+                IconButton(onClick = {
+                    isNotificationDialogShow.value = true
+                }) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                 }
             }

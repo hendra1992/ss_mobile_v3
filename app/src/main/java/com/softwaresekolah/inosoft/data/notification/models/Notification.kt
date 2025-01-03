@@ -1,4 +1,4 @@
-package com.softwaresekolah.inosoft.data.notification
+package com.softwaresekolah.inosoft.data.notification.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

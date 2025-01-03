@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.plcoding.globalsnackbarscompose.SnackbarAction
 import com.plcoding.globalsnackbarscompose.SnackbarController
 import com.plcoding.globalsnackbarscompose.SnackbarEvent
-import com.plcoding.internetconnectionobserver.ConnectivityObserver
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
@@ -19,14 +18,10 @@ import com.softwaresekolah.inosoft.data.profile.request.ParentDataBodyRequest
 import com.softwaresekolah.inosoft.domain.core.manager.LocalManager
 import com.softwaresekolah.inosoft.domain.profile.usecase.parentData.GetParentDataUseCase
 import com.softwaresekolah.inosoft.domain.profile.usecase.parentData.SaveParentDataUseCase
-import com.softwaresekolah.inosoft.domain.profile.usecase.personalData.GetPersonalDataUseCase
-import com.softwaresekolah.inosoft.domain.profile.usecase.personalData.SavePersonalDataUseCase
 import com.softwaresekolah.inosoft.util.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -38,24 +33,19 @@ class ParentDataViewModel @Inject constructor(
     private val getParentDataUseCase: GetParentDataUseCase,
     private val saveParentDataUseCase: SaveParentDataUseCase,
     private val localManager: LocalManager,
-    private val connectivityObserver: ConnectivityObserver
 ): ViewModel() {
     private val _state = mutableStateOf(ParentDataState())
     val state: State<ParentDataState> = _state
+    val networkMonitor = NetworkMonitor(application)
 
-    val isConnected = connectivityObserver
-        .isConnected
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000L),
-            false
-        )
+    val isConnected = networkMonitor.isNetworkAvailable()
+
 
     init {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -68,7 +58,7 @@ class ParentDataViewModel @Inject constructor(
         Timber.tag("Personal View Model").d("test")
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            if (isConnected.value){
+            if (isConnected){
                 loadData()
             }else{
                 _state.value = _state.value.copy(isLoading = false)
@@ -156,7 +146,7 @@ class ParentDataViewModel @Inject constructor(
         momPhone: String,
     ){
         onClearError()
-        if (!isConnected.value){
+        if (!isConnected){
             _state.value = _state.value.copy(isLoading = false)
             showSnackbar("No Internet Connection", action = { saveData(
                 dadName, dadPhone, momName, momPhone

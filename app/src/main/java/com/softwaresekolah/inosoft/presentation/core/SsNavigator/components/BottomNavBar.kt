@@ -24,7 +24,7 @@ fun BottomNavBar(
                 icon = { 
                     BadgedBox(
                         badge = {
-                            if (item.badgeCount != null){
+                            if (item.badgeCount != null && item.badgeCount != 0){
                                 Badge{
                                     Text(text = item.badgeCount.toString())
                                 }

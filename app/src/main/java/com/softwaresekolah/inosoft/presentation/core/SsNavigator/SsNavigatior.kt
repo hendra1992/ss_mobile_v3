@@ -1,6 +1,7 @@
 package com.softwaresekolah.inosoft.presentation.core.SsNavigator
 
 import android.content.Context
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,11 @@ import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.Create
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.MarkEmailRead
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -56,15 +62,22 @@ import com.softwaresekolah.inosoft.presentation.core.SsNavigator.components.NavD
 import com.softwaresekolah.inosoft.presentation.core.SsNavigator.components.TopBar
 import com.softwaresekolah.inosoft.presentation.core.navgraph.Route
 import com.softwaresekolah.inosoft.presentation.home.HomeScreen
-import com.softwaresekolah.inosoft.data.notification.Notification
+import com.softwaresekolah.inosoft.data.notification.responses.NotificationListResponse
 import com.softwaresekolah.inosoft.presentation.auth.Login.LoginScreen
 import com.softwaresekolah.inosoft.presentation.auth.Login.LoginViewModel
 import com.softwaresekolah.inosoft.presentation.auth.expLogin.LoginExpScreen
 import com.softwaresekolah.inosoft.presentation.auth.expLogin.LoginExpViewModel
+import com.softwaresekolah.inosoft.presentation.core.SsNavigator.components.ExpandableFAB
+import com.softwaresekolah.inosoft.presentation.core.SsNavigator.components.FABItem
+import com.softwaresekolah.inosoft.presentation.core.common.SimpleLoadingScreen
 import com.softwaresekolah.inosoft.presentation.notification.list.NotificationScreen
 import com.softwaresekolah.inosoft.presentation.core.common.rememberMultiSelectionState
 import com.softwaresekolah.inosoft.presentation.drawer.DrawDetailScreen
 import com.softwaresekolah.inosoft.presentation.notification.detail.NotificationDetailScreen
+import com.softwaresekolah.inosoft.presentation.notification.detail.NotificationDetailViewModel
+import com.softwaresekolah.inosoft.presentation.notification.list.NotificationListEvent
+import com.softwaresekolah.inosoft.presentation.notification.list.NotificationListViewModel
+import com.softwaresekolah.inosoft.presentation.notification.list.component.NotificationDialog
 import com.softwaresekolah.inosoft.presentation.profile.address.AddressScreen
 import com.softwaresekolah.inosoft.presentation.profile.address.AddressViewModel
 import com.softwaresekolah.inosoft.presentation.profile.personalData.PersonalDataScreen
@@ -85,7 +98,10 @@ import timber.log.Timber
 @Composable
 fun SsNavigator(
 ) {
-    val sharedViewModel = hiltViewModel<SharedViewModel>()
+    val sharedViewModel: SharedViewModel = hiltViewModel()
+    val sharedState = sharedViewModel.state.value
+    val notificationViewModel: NotificationListViewModel = hiltViewModel()
+    val notificationState = notificationViewModel.state.value
     val bottomNavigationItems = remember {
         listOf(
             BottomNavItem(
@@ -93,14 +109,13 @@ fun SsNavigator(
                 selectedIcon = Icons.Filled.Home,
                 unselectedIcon = Icons.Outlined.Home,
                 hasUpdate = false,
-
             ),
             BottomNavItem(
                 title = "Notification",
                 selectedIcon = Icons.Filled.Notifications,
                 unselectedIcon = Icons.Outlined.Notifications,
                 hasUpdate = false,
-                badgeCount = 5
+                badgeCount = notificationState.notificationUnread
             ),
             BottomNavItem(
                 title = "Setting",
@@ -115,6 +130,12 @@ fun SsNavigator(
                 hasUpdate = false,
             ),
         )
+    }
+
+    LaunchedEffect(notificationState.notificationUnread) {
+        if (notificationState.notificationUnread != null){
+            bottomNavigationItems[1].badgeCount = notificationState.notificationUnread
+        }
     }
 
     val accountBottomSheetState = rememberModalBottomSheetState()
@@ -154,11 +175,16 @@ fun SsNavigator(
     val context = LocalContext.current
     val navController = rememberNavController()
     var actionBarTitle by rememberSaveable { mutableStateOf("Home") }
+
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { backStackEntry ->
             // You can map the title based on the route using:
             actionBarTitle = getTitleByRoute(context, backStackEntry.destination.route!!)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        notificationViewModel.onEvent(NotificationListEvent.OnUpdate)
     }
     val backStackState = navController.currentBackStackEntryAsState().value
     var selectedItem by rememberSaveable {
@@ -189,7 +215,7 @@ fun SsNavigator(
     // notification page state
     val multipleSelectModeState = rememberMultiSelectionState()
     val selectedItems = remember {
-        mutableStateListOf<Notification>()
+        mutableStateListOf<NotificationListResponse>()
     }
 
     val snackbarHostState = remember {
@@ -276,9 +302,45 @@ fun SsNavigator(
                         scrollBehavior = scrollBehavior,
                         drawerState = drawerState,
                         multiSelectState = multipleSelectModeState,
-                        notifSelectedItem = selectedItems
+                        notifSelectedItem = selectedItems,
+                        onEvent = notificationViewModel::onEvent
                     )
                 }
+            },
+            floatingActionButton = {
+            val itemList = listOf(
+                FABItem(icon = Icons.Rounded.MarkEmailRead, text = "Baca Semua"),
+                FABItem(icon = Icons.Rounded.Delete, text = "Hapus Semua Terbaca"),
+            )
+            val isReadAllNotificationDialogShow = remember {
+                mutableStateOf(false)
+            }
+
+            if (isReadAllNotificationDialogShow.value){
+                NotificationDialog(action = { notificationViewModel.onEvent(NotificationListEvent.OnReadAll) }, isNotificationDialogShow = isReadAllNotificationDialogShow, text = "Apakah Anda Yakin Mau Menandai Semua Pemberitahuan Terbaca?")
+            }
+
+            val isDeleteAllReadNotificationDialogShow = remember {
+                mutableStateOf(false)
+            }
+
+            if (isDeleteAllReadNotificationDialogShow.value){
+                NotificationDialog(action = { notificationViewModel.onEvent(NotificationListEvent.OnDeleteAllRead) }, isNotificationDialogShow = isDeleteAllReadNotificationDialogShow, text = "Apakah Anda Yakin Mau Menghapus Semua Pemberitahuan Yang Terbaca?")
+            }
+            if(actionBarTitle == "Notification"){
+                ExpandableFAB (
+                    items = itemList,
+                    onItemClick = {item ->
+
+                        when(item.text) {
+                            "Baca Semua" -> isReadAllNotificationDialogShow.value = true
+                            "Hapus Semua Terbaca" -> isDeleteAllReadNotificationDialogShow.value = true
+                        }
+                    }
+                )
+            }
+
+
             }
         ){
             val bottomPadding = it.calculateBottomPadding()
@@ -344,13 +406,17 @@ fun SsNavigator(
                 ) {
                     val idSiswa = navController.currentBackStackEntry?.arguments?.getString("idSiswa")
                     Timber.tag("NOTIFICATION ARGUMENT").d(idSiswa.toString())
+
                     NotificationScreen(
                         navController = navController,
                         state = multipleSelectModeState,
                         selectedItems = selectedItems,
-                        modifier = Modifier.padding(bottom = bottomPadding, top = topPadding)
+                        modifier = Modifier.padding(bottom = bottomPadding, top = topPadding),
+                        listState = notificationState,
+                        onEvent = notificationViewModel::onEvent
                     )
                 }
+
                 composable(route = Route.SettingScreen.route) {
                     val viewModel: SettingViewModel = hiltViewModel()
                     val state = viewModel.state.value
@@ -375,11 +441,15 @@ fun SsNavigator(
                         }
                 }
                 composable(route = Route.NotificationDetailScreen.route){
-                    navController.previousBackStackEntry?.savedStateHandle?.get<Notification?>("notifItem")
+                    val viewModel: NotificationDetailViewModel = hiltViewModel()
+                    val state = viewModel.state.value
+                    navController.previousBackStackEntry?.savedStateHandle?.get<NotificationListResponse?>("notifItem")
                         ?.let { item ->
                             NotificationDetailScreen(
                                 item = item,
                                 navigateUp = { navController.navigateUp() },
+                                state = state,
+                                onEvent = viewModel::onEvent
                             )
                         }
                 }
@@ -420,6 +490,10 @@ fun SsNavigator(
                 composable(route = Route.ListAccountScreen.route) {
                     ListAccountScreen(navController = navController, navigateUp = { navController.navigateUp() })
                 }
+            }
+
+            if(sharedViewModel.state.value.isLoading){
+                SimpleLoadingScreen()
             }
         }
     }
@@ -463,7 +537,7 @@ private fun navigateToTab(navController: NavController, route: String) {
     }
 }
 
-fun navigateToNotificationDetails(navController: NavController, item: Notification) {
+fun navigateToNotificationDetails(navController: NavController, item: NotificationListResponse) {
     navController.currentBackStackEntry?.savedStateHandle?.set("notifItem", item)
     navController.navigate(
         route = Route.NotificationDetailScreen.route
