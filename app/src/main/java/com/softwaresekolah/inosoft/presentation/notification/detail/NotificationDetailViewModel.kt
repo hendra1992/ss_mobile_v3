@@ -31,35 +31,39 @@ class NotificationDetailViewModel @Inject constructor(
       fun onEvent(event: NotificationDetailEvent){
         when(event){
             is NotificationDetailEvent.OnRead -> {
-                if (networkMonitor.isNetworkAvailable()){
-                    val studentId = runBlocking {
-                        localManager.getIdSiswa()
-                    }
-
-                    val departmentId = runBlocking {
-                        localManager.getIdDep()
-                    }
-
-                    viewModelScope.launch {
-                        val body = UpdateReadNotificationRequestBody(id_dep = departmentId.toString(), id_siswa = studentId.toString(), list_id_notif = listOf(event.notificationId))
-                        readNotificationUseCase(body)
-                    }
-                }else{
-                    showSnackBar("No Internet Connection", action = {
-                        val studentId = runBlocking {
-                            localManager.getIdSiswa()
-                        }
-                        val departmentId = runBlocking {
-                            localManager.getIdDep()
-                        }
-                        viewModelScope.launch {
-                            val body = UpdateReadNotificationRequestBody(id_dep = departmentId.toString(), id_siswa = studentId.toString(), list_id_notif = listOf(event.notificationId))
-                            readNotificationUseCase(body)
-                        }
-
-                    })
-                }
+               readNotification(event.notificationId)
             }
+        }
+    }
+
+    private fun readNotification(id: String){
+        if (networkMonitor.isNetworkAvailable()){
+            val studentId = runBlocking {
+                localManager.getIdSiswa()
+            }
+
+            val departmentId = runBlocking {
+                localManager.getIdDep()
+            }
+
+            viewModelScope.launch {
+                val body = UpdateReadNotificationRequestBody(id_dep = departmentId.toString(), id_siswa = studentId.toString(), list_id_notif = listOf(id))
+                readNotificationUseCase(body)
+            }
+        }else{
+            showSnackBar("No Internet Connection", action = {
+                val studentId = runBlocking {
+                    localManager.getIdSiswa()
+                }
+                val departmentId = runBlocking {
+                    localManager.getIdDep()
+                }
+                viewModelScope.launch {
+                    val body = UpdateReadNotificationRequestBody(id_dep = departmentId.toString(), id_siswa = studentId.toString(), list_id_notif = listOf(id))
+                    readNotificationUseCase(body)
+                }
+
+            })
         }
     }
 

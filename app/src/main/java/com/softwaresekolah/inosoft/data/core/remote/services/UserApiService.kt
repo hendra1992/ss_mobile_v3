@@ -22,6 +22,9 @@ import com.softwaresekolah.inosoft.data.profile.response.ParentDataResponse
 import com.softwaresekolah.inosoft.data.profile.response.PersonalDataResponse
 import com.softwaresekolah.inosoft.data.profile.response.ProvinceDataResponse
 import com.softwaresekolah.inosoft.data.profile.response.ReligionDataResponse
+import com.softwaresekolah.inosoft.data.settings.requests.ChangePasswordRequestBody
+import com.softwaresekolah.inosoft.data.settings.requests.SaveSettingRequestBody
+import com.softwaresekolah.inosoft.data.settings.responses.GetSettingResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -127,5 +130,21 @@ interface UserApiService {
     @POST("pemberitahuan/delete_all_read")
     suspend fun deleteAllReadNotification(
         @Body body: DeleteAllReadBodyRequest
+    ): ApiResponse<BaseResponse<String>>
+
+    @GET("pengaturan")
+    suspend fun getSettings(
+        @Query("id_siswa") studentId : String,
+        @Query("id_dep") departmentId : String
+    ): ApiResponse<BaseResponse<GetSettingResponse>>
+
+    @POST("pengaturan")
+    suspend fun saveSettings(
+        @Body body: SaveSettingRequestBody
+    ): ApiResponse<BaseResponse<String>>
+
+    @POST("ganti_password")
+    suspend fun changePassword(
+        @Body body: ChangePasswordRequestBody
     ): ApiResponse<BaseResponse<String>>
 }

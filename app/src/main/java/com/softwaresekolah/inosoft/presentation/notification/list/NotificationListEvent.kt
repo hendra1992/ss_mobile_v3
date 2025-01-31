@@ -11,4 +11,7 @@ sealed class NotificationListEvent {
     data class DeleteBatchNotification(
         var notificationIds: List<NotificationListResponse> = emptyList()
     ): NotificationListEvent()
+    data class ReadBatchNotification(
+        var notificationIds: List<NotificationListResponse> = emptyList()
+    ): NotificationListEvent()
 }

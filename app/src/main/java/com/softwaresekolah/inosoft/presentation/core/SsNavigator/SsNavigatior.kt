@@ -1,7 +1,6 @@
 package com.softwaresekolah.inosoft.presentation.core.SsNavigator
 
 import android.content.Context
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,9 +15,6 @@ import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MarkEmailRead
 import androidx.compose.material3.DrawerValue
@@ -88,6 +84,8 @@ import com.softwaresekolah.inosoft.presentation.profile.etc.EtcViewModel
 import com.softwaresekolah.inosoft.presentation.profile.parentData.ParentDataViewModel
 import com.softwaresekolah.inosoft.presentation.profile.personalData.PersonalDataViewModel
 import com.softwaresekolah.inosoft.presentation.profile.profile.ProfileScreen
+import com.softwaresekolah.inosoft.presentation.settings.changePassword.ChangePasswordScreen
+import com.softwaresekolah.inosoft.presentation.settings.changePassword.ChangePasswordViewModel
 import com.softwaresekolah.inosoft.presentation.settings.listAccount.ListAccountScreen
 import com.softwaresekolah.inosoft.presentation.settings.setting.SettingViewModel
 import com.softwaresekolah.inosoft.presentation.settings.setting.SettingsScreen
@@ -489,6 +487,11 @@ fun SsNavigator(
                 }
                 composable(route = Route.ListAccountScreen.route) {
                     ListAccountScreen(navController = navController, navigateUp = { navController.navigateUp() })
+                }
+                composable(route = Route.ChangePasswordScreen.route) {
+                    val viewModel: ChangePasswordViewModel = hiltViewModel()
+                    val state = viewModel.state.value
+                    ChangePasswordScreen(navController = navController, navigateUp = { navController.navigateUp() }, state = state, onEvent = viewModel::onEvent)
                 }
             }
 

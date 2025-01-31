@@ -17,6 +17,8 @@ import com.softwaresekolah.inosoft.data.core.mapper.ErrorEnvelopeMapper
 import com.softwaresekolah.inosoft.data.notification.requests.DeleteAllReadBodyRequest
 import com.softwaresekolah.inosoft.data.notification.requests.DeleteBatchNotificationRequest
 import com.softwaresekolah.inosoft.data.notification.requests.ReadAllBodyRequest
+import com.softwaresekolah.inosoft.data.notification.requests.ReadBatchBodyRequest
+import com.softwaresekolah.inosoft.data.notification.requests.UpdateReadNotificationRequestBody
 import com.softwaresekolah.inosoft.data.notification.responses.NotificationListResponse
 import com.softwaresekolah.inosoft.domain.core.manager.LocalManager
 import com.softwaresekolah.inosoft.domain.notification.usecase.DeleteAllReadNotificationUseCase
@@ -24,6 +26,7 @@ import com.softwaresekolah.inosoft.domain.notification.usecase.DeleteBatchNotifi
 import com.softwaresekolah.inosoft.domain.notification.usecase.GetNotificationCountUseCase
 import com.softwaresekolah.inosoft.domain.notification.usecase.GetNotificationListUseCase
 import com.softwaresekolah.inosoft.domain.notification.usecase.ReadAllNotificationUseCase
+import com.softwaresekolah.inosoft.domain.notification.usecase.ReadNotificationUseCase
 import com.softwaresekolah.inosoft.util.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -42,6 +45,7 @@ class NotificationListViewModel @Inject constructor(
     private val deleteBatchNotificationUseCase: DeleteBatchNotificationUseCase,
     private val readAllNotificationUseCase: ReadAllNotificationUseCase,
     private val deleteAllReadNotification: DeleteAllReadNotificationUseCase,
+    private val readNotificationUseCase: ReadNotificationUseCase,
     private val application: Application
 ) : ViewModel() {
     private val _state = mutableStateOf(NotificationListState())
@@ -63,7 +67,6 @@ class NotificationListViewModel @Inject constructor(
             )
         }
     }
-
     private fun update(){
          viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, notificationList = emptyList())
@@ -117,10 +120,14 @@ class NotificationListViewModel @Inject constructor(
             NotificationListEvent.OnReadAll -> {
                 onReadAll()
             }
+
+            is NotificationListEvent.ReadBatchNotification -> {
+                onReadBatch(event.notificationIds)
+            }
         }
     }
 
-   private fun onDeleteBatch(notificationIds: List<NotificationListResponse>){
+    private fun onDeleteBatch(notificationIds: List<NotificationListResponse>){
         viewModelScope.launch {
             val departmentId = localManager.getIdDep()
             val studentId = localManager.getIdSiswa()
@@ -172,6 +179,57 @@ class NotificationListViewModel @Inject constructor(
         }
     }
 
+     private fun onReadBatch(notificationIds: List<NotificationListResponse>){
+        viewModelScope.launch {
+            val departmentId = localManager.getIdDep()
+            val studentId = localManager.getIdSiswa()
+
+            val ids = mutableListOf<String>()
+            notificationIds.forEach {
+                ids.add(it.notif_id)
+            }
+
+            val body = UpdateReadNotificationRequestBody(
+                id_siswa = studentId.toString(),
+                id_dep = departmentId.toString(),
+                list_id_notif = ids
+            )
+
+            if (networkMonitor.isNetworkAvailable()) {
+                val response = readNotificationUseCase(body = body)
+                response.onSuccess {
+                    _state.value = _state.value.copy(isLoading = false, success = data.messages)
+                }.onError(ErrorEnvelopeMapper) {
+                    val message = this.body.errors
+                    _state.value = _state.value.copy(isLoading = false)
+                }.onException {
+                    _state.value = _state.value.copy(isLoading = false)
+                    showSnackBar("connection lost")
+                }.onFailure {
+                    val message: String = message()
+                    Timber.tag("SharedViewModel").d(message)
+                }
+            }else{
+                showSnackBar("No Internet Connection", "Retry", action = {
+                    viewModelScope.launch {
+                        val response = readNotificationUseCase(body = body)
+                        response.onSuccess {
+                            _state.value = _state.value.copy(isLoading = false, success = data.messages)
+                        }.onError(ErrorEnvelopeMapper) {
+                            val message = this.body.errors
+                            _state.value = _state.value.copy(isLoading = false, text = message)
+                        }.onException {
+                            _state.value = _state.value.copy(isLoading = false)
+                            showSnackBar("connection lost")
+                        }.onFailure {
+                            val message: String = message()
+                            Timber.tag("SharedViewModel").d(message)
+                        }
+                    }
+                })
+                }
+            }
+    }
     private fun onDeleteAll(){
         viewModelScope.launch {
             val departmentId = localManager.getIdDep()
@@ -217,7 +275,6 @@ class NotificationListViewModel @Inject constructor(
             }
         }
     }
-
     private fun onReadAll(){
         viewModelScope.launch {
             val departmentId = localManager.getIdDep()
@@ -263,7 +320,6 @@ class NotificationListViewModel @Inject constructor(
             }
         }
     }
-
 
     private fun onClearText(){
          _state.value = _state.value.copy(isLoading = false, text = null, success = null)

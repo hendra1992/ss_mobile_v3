@@ -3,6 +3,7 @@ package com.softwaresekolah.inosoft.presentation.core.SsNavigator.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MarkEmailRead
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
@@ -42,6 +43,15 @@ fun TopBar(
     if (isNotificationDialogShow.value){
         NotificationDialog(action = { onEvent(NotificationListEvent.DeleteBatchNotification(notifSelectedItem.toList())) }, isNotificationDialogShow = isNotificationDialogShow, text = "Apakah Anda Yakin Mau Menghapus Pemberitahuan Yang Terpilih?")
     }
+
+    val isReadBatchNotificationDialogShow = remember {
+        mutableStateOf(false)
+    }
+
+    if (isReadBatchNotificationDialogShow.value){
+        NotificationDialog(action = { onEvent(NotificationListEvent.ReadBatchNotification(notifSelectedItem.toList())) }, isNotificationDialogShow = isReadBatchNotificationDialogShow, text = "Apakah Anda Yakin Mau Menandai Pemberitahuan Terpilih terbaca?")
+    }
+
     CenterAlignedTopAppBar(
         title = { Text(text = title)},
         navigationIcon = {
@@ -61,10 +71,20 @@ fun TopBar(
         actions = {
             if (multiSelectState.isMultiSelectionModeEnabled){
                 IconButton(onClick = {
+                    isReadBatchNotificationDialogShow.value = true
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.MarkEmailRead,
+                        contentDescription = "Read Notification",
+                    )
+                }
+
+                IconButton(onClick = {
                     isNotificationDialogShow.value = true
                 }) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                 }
+
             }
         },
         scrollBehavior = scrollBehavior

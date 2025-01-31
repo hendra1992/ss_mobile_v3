@@ -38,6 +38,7 @@ fun GeneralSettingItem(
     mainText: String,
     subText: String,
     onClick: () -> Unit,
+    onChange: () -> Unit = {},
     checked: MutableState<Boolean>
 ) {
     Card(
@@ -50,7 +51,9 @@ fun GeneralSettingItem(
         ),
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 10.dp, horizontal = 14.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(vertical = 10.dp, horizontal = 14.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -95,6 +98,7 @@ fun GeneralSettingItem(
                 checked = checked.value,
                 onCheckedChange = {
                     checked.value = it
+                    onChange()
                 },
                 thumbContent = if (checked.value) {
                     {

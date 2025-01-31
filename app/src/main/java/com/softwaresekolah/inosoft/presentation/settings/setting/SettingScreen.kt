@@ -13,13 +13,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.softwaresekolah.inosoft.R
+import com.softwaresekolah.inosoft.data.settings.responses.GetSettingResponse
 import com.softwaresekolah.inosoft.presentation.core.SsNavigator.navigateTo
 import com.softwaresekolah.inosoft.presentation.core.navgraph.Route
 import com.softwaresekolah.inosoft.presentation.settings.component.GeneralSettingItem
@@ -72,8 +74,10 @@ fun SettingsScreen(
             onEvent(SettingEvent.resetState)
         }
 
+
+
         ProfileCardUI()
-        GeneralOptionsUI()
+        GeneralOptionsUI(state, onEvent)
         SupportOptionsUI(navController = navController, isLogoutDialogShow = isLogoutDilalogShow)
     }
 }
@@ -149,9 +153,23 @@ fun ProfileCardUI() {
 }
 
 @Composable
-fun GeneralOptionsUI() {
-    var checkedPengumuman = remember { mutableStateOf(true) }
-    var checkedAbsensi = remember { mutableStateOf(true) }
+fun GeneralOptionsUI(state: SettingState, onEvent: (SettingEvent) -> Unit, ) {
+    var checkedPengumuman = remember { mutableStateOf(false) }
+    var checkedAbsensi = remember { mutableStateOf(false) }
+    var checkedTelat = remember { mutableStateOf(false) }
+    LaunchedEffect(state.settings) {
+        if (state.settings?.siswa_notif_alpa != null ){
+            checkedAbsensi.value = state.settings!!.siswa_notif_alpa
+        }
+
+        if (state.settings?.siswa_notif_bayar != null ){
+            checkedPengumuman.value = state.settings!!.siswa_notif_bayar
+        }
+
+        if (state.settings?.siswa_notif_telat != null ){
+            checkedTelat.value = state.settings!!.siswa_notif_telat
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -170,14 +188,42 @@ fun GeneralOptionsUI() {
             checked = checkedPengumuman,
             mainText = "Notifikasi Pengumuman Sekolah",
             subText = "Atur Notifikasi Pengumuman Sekolah",
-            onClick = {}
+            onClick = {},
+            onChange = {
+                  onEvent(SettingEvent.OnSave(GetSettingResponse(
+                    siswa_notif_bayar = checkedPengumuman.value,
+                    siswa_notif_telat = checkedTelat.value,
+                    siswa_notif_alpa = checkedAbsensi.value
+                )))
+            }
         )
         GeneralSettingItem(
             icon = Icons.Outlined.CalendarMonth,
             checked = checkedAbsensi,
             mainText = "Notifikasi Absensi",
             subText = "Atur Notifikasi Absensi",
-            onClick = {}
+            onClick = {},
+            onChange = {
+                  onEvent(SettingEvent.OnSave(GetSettingResponse(
+                    siswa_notif_bayar = checkedPengumuman.value,
+                    siswa_notif_telat = checkedTelat.value,
+                    siswa_notif_alpa = checkedAbsensi.value
+                )))
+            }
+        )
+        GeneralSettingItem(
+            icon = Icons.Outlined.Timer,
+            checked = checkedTelat,
+            mainText = "Notifikasi Siswa Telat",
+            subText = "Atur Notifikasi Siswa Telat",
+            onClick = {},
+            onChange = {
+                  onEvent(SettingEvent.OnSave(GetSettingResponse(
+                    siswa_notif_bayar = checkedPengumuman.value,
+                    siswa_notif_telat = checkedTelat.value,
+                    siswa_notif_alpa = checkedAbsensi.value
+                )))
+            }
         )
 //        GeneralSettingItem()
     }
@@ -204,6 +250,13 @@ fun SupportOptionsUI(navController: NavController, isLogoutDialogShow: MutableSt
             mainText = "Tambah / Ganti Akun",
             onClick = { navigateTo(navController, Route.ListAccountScreen.route) }
         )
+
+        SupportItem(
+            icon = Icons.Outlined.Lock,
+            mainText = "Ganti Password",
+            onClick = { navigateTo(navController, Route.ChangePasswordScreen.route) }
+        )
+
         SupportItem(
             icon = Icons.Default.PowerSettingsNew,
             mainText = "Logout",
